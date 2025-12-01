@@ -1,4 +1,4 @@
-mermaid%%Production Data Architecture (GitHub-safe version)
+%%Production Data Architecture (GitHub-safe version)
 flowchart TD
     A[S3 Raw Landing<br/>events_YYYYMMDD.csv] --> B{Data Quality Validator}
     B -->|CRITICAL / Duplicates| C[S3 Quarantine + Slack Alert]
