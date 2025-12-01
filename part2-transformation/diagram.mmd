@@ -1,0 +1,16 @@
+mermaid%%Production Data Architecture (GitHub-safe version)
+flowchart TD
+    A[S3 Raw Landing<br/>events_YYYYMMDD.csv] --> B{Data Quality Validator}
+    B -->|CRITICAL / Duplicates| C[S3 Quarantine + Slack Alert]
+    B -->|PASS| D[S3 Clean Zone]
+    D --> E[Airflow DAG]
+    E --> F[dbt Models<br/>sessions | attribution | funnel]
+    F --> G[Snowflake Warehouse]
+    G --> H[Looker Executive Dashboards]
+    G --> I[Grafana Monitoring<br/>Freshness | Revenue | Duplicates]
+    B -->|Fail-fast| J[PagerDuty Alert]
+    I --> K[Slack + PagerDuty]
+
+    style C fill:#ffebee
+    style J fill:#fff3e0
+    style H fill:#e8f5e8
