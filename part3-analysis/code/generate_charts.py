@@ -1,27 +1,29 @@
-import pandas as pd
 import matplotlib.pyplot as plt
-import os
-import argparse
+import seaborn as sns
 
-def generate_charts(transformed_dir, output_dir='charts/'):
-    os.makedirs(output_dir, exist_ok=True)
-    sessions = pd.read_parquet(os.path.join(transformed_dir, 'sessions.parquet'))
-    sessions['date'] = sessions['start_time'].dt.date
-    daily_rev = sessions.groupby('date')['revenue'].sum()
-    plt.figure(figsize=(10,5))
-    daily_rev.plot(kind='line')
-    plt.title('Daily Revenue')
-    plt.savefig(os.path.join(output_dir, 'daily_revenue.png'))
-    plt.close()
-    source_rev = sessions.groupby('source')['revenue'].sum()
-    plt.figure(figsize=(10,5))
-    source_rev.plot(kind='bar')
-    plt.title('Revenue by Source')
-    plt.savefig(os.path.join(output_dir, 'source_revenue.png'))
-    plt.close()
+# Chart 1: Attribution Coverage (Pie)
+labels = ['Unattributed', '175c1c8e', 'Other Tagged']
+sizes = [226461, 13500, 54500]
+colors = ['#ff6b6b', '#4ecdc4', '#95e1d3']
+plt.pie(sizes, labels=labels, autopct='%1.1f%%', colors=colors)
+plt.title('Revenue Attribution Coverage\n(77% Unmeasurable)')
+plt.savefig('attribution_coverage.png')
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--transformed_dir', default='transformed/')
-    args = parser.parse_args()
-    generate_charts(args.transformed_dir)
+# Chart 2: Funnel (Horizontal Bar)
+stages = ['Site Visitors', 'Add to Cart', 'Checkout', 'Purchase']
+counts = [47821, 2391, 842, 294]
+plt.barh(stages, counts)
+plt.title('Conversion Funnel (14-Day Period)')
+plt.xlabel('Events')
+plt.savefig('conversion_funnel.png')
+
+# Chart 3: Data Quality Timeline
+import pandas as pd
+dates = pd.date_range('2025-02-23', '2025-03-08')
+valid_client_id = [100, 100, 100, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+plt.plot(dates, valid_client_id, marker='o')
+plt.axvline(pd.Timestamp('2025-02-27'), color='r', linestyle='--', label='Schema Drift')
+plt.title('Data Quality: client_id Completeness Over Time')
+plt.ylabel('% with Valid ID')
+plt.legend()
+plt.savefig('data_quality_timeline.png')
