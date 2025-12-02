@@ -20,37 +20,55 @@ This repository delivers a **complete, production-grade analytics platform** tha
 
 ## Project Structure
 puffy_repo/
+├── README.md                              # Executive README (already perfect)
+├── requirements.txt                       # Python deps (pandas, etc.)
+│
+├── data/                                  # ← NOT committed (add to .gitignore)
+│   └── (raw CSV files .csv)
+│
 ├── part1-data-quality/
-│   ├── validate_dataframework.py          # Streaming DQ + fail-fast + quarantine
-│   ├── validation-dataframework.docx      # Full findings & methodology
-│   └── schema.yaml
+│   ├── validate_dataframework.py          # Your excellent DQ script
+│   ├── validation-dataframework.docx     # 1-page+ findings & methodology
+│   ├── schema.yaml                        # Schema contract
+│   └── dq_report.csv                      # Auto-generated report (example)
+│
 ├── part2-transformation/
-│   ├── transform.sql                      # Bronze → Silver → Gold ELT
-│   ├── validation_tr.sql                  # 9/9 passing test suite
-│   ├── documentation_transformation.docx
-│   └── architecture_diagram.png
-├── part3-analysis/
-│   ├── Analysis_Recommendation.docx       # Executive summary + charts + $ impact
-│   └── supporting_analysis/
+│   ├── transform.sql                      # Main ELT pipeline (Bronze→Silver→Gold)
+│   ├── validation_tr.sql                  # 9/9 passing test suite with synthetic data
+│   ├── documentation_transformation.docx # Architecture decisions & trade-offs
+│   └── architecture_diagram.png           # The beautiful PNG we made
+│
+├── part3-business-analysis/
+│   ├── executive_summary.md              # 1.8-page executive summary (the one I just gave you)
+│   ├── funnel_sankey.png
+│   ├── revenue_trend.png
+│   ├── attribution_loss_pie.png            # 77% unattributed slice
+│   ├── device_cvr.png
+│   └── daily_volume_anomaly.png
+│
 ├── part4-monitoring/
-│   ├── monitor.py                         # 3-layer monitoring (health/quality/business)
-│   ├── test_monitor.py
-│   ├── documentation_monitor.docx
-│   └── grafana_dashboard.json
-├── data/                                   # Raw 14-day event files (not committed)
-├── requirements.txt
-└── README.md                               # You are here
+│   ├── monitor.py                         # 3-layer monitoring
+│   ├── test_monitor.py                    # Unit tests
+│   ├── documentation_monitoring.md       # 1–2 page strategy (convert your docx → md)
+│   └── grafana_dashboard.json             # Example dashboard config
+│
+└── .gitignore
+    # content:
+    data/*
+    *.docx
+    __pycache__/
+    *.pyc
 
 ----
 
 ## Key Deliverables & Results
 
-| Part | What Was Delivered                                  | Outcome |
-|------|-----------------------------------------------------|--------|
-| 1    | Production-grade streaming data quality framework   | Detected schema drift, duplicate transactions ($6.7k inflation), 78.6 % journey loss |
-| 2    | Scalable ELT pipeline (pure SQL) + full test suite  | 100 % revenue reconciliation, 9/9 tests passed |
-| 3    | Executive analysis + financial impact modeling      | Identified measurement (not conversion) as constraint → $2.5–4.0M EBITDA unlock |
-| 4    | 3-layer monitoring system with statistical alerts  | Would have fired P0 alert on Feb 27 within minutes |
+| Part | What Was Delivered                                                                 | Outcome           |
+|------|--------------------------------------------------------------------------- --------|-------- ----------|
+| 1    | End‑to‑end analytics pipelinethat is production‑oriented and ready to harden   | Detected schema drift, duplicate transactions ($6.7k inflation), 78.6 % journey loss |
+| 2    | Scalable ELT pipeline (pure SQL) + full test suite                             | 100 % revenue reconciliation, 9/9 tests passed, within the 14‑day dataset, after deduping transaction_id  |
+| 3    | Executive analysis + financial impact modeling                                 | Identified measurement (not conversion) as constraint → $2.5–4.0M EBITDA unlock |
+| 4    | 3-layer monitoring system with statistical alerts                              |Is designed to fire a P0 alert on failures like the Feb 27 schema drift within minutes |
 
 
 ---
