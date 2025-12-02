@@ -1,0 +1,111 @@
+version: 1
+
+raw_events_schema:
+
+  required_columns:
+    - client_id
+    - page_url
+    - referrer
+    - timestamp
+    - event_name
+    - event_data
+    - user_agent
+
+  # Allowed alternate names (if received, system must normalize & raise a WARNING)
+  allowed_alternate_columns:
+    clientId: client_id
+    pageURL: page_url
+    referrer_url: referrer
+
+  column_types:
+    client_id: string
+    page_url: string
+    referrer: string
+    timestamp: datetime
+    event_name: string
+    event_data: json
+    user_agent: string
+
+  # Mandatory presence rules
+  rules:
+    timestamp_must_be_parseable: true
+    client_id_null_threshold: 0.05     # alert if null rate > 5%
+    client_id_critical_threshold: 0.20 # fail ingestion > 20%
+    event_data_json_required: true     # empty event_data allowed only for specific event types below
+
+  # Event-level schema rules
+  event_contracts:
+
+    checkout_completed:
+      required_keys:
+        - transaction_id
+        - revenue
+      optional_keys:
+        - currency
+        - items
+        - coupon
+      revenue_type: numeric
+      allow_empty_event_data: false
+
+    purchase:  # in case future SDK returns purchase instead of checkout_completed
+      required_keys:
+        - transaction_id
+        - revenue
+      allow_empty_event_data: false
+
+    product_added_to_cart:
+      required_keys:
+        - item_id
+        - item_name
+      optional_keys:
+        - quantity
+        - price
+      allow_empty_event_data: false
+
+    checkout_started:
+      required_keys:
+        - step
+      optional_keys:
+        - cart_value
+      allow_empty_event_data: false
+
+    page_viewed:
+      required_keys: []
+      optional_keys:
+        - title
+        - query_params
+      allow_empty_event_data: true
+
+  # Global duplicate rules
+  duplicate_rules:
+    allow_exact_duplicate_rows: false
+    allow_duplicate_transaction_ids: false
+    primary_transaction_field: transaction_id
+
+  # Cross-field rules
+  cross_checks:
+    - name: "purchase_must_follow_checkout"
+      description: "checkout_completed count must not exceed checkout_started count on the same day"
+      fail_on_violation: true
+
+    - name: "revenue_non_negative"
+      description: "Revenue values must be positive numeric"
+      fail_on_violation: true
+
+    - name: "valid_timestamp_range"
+      description: "Timestamp must fall within ingestion window (±3 days)"
+      fail_on_violation: false
+
+  # Alerting configuration
+  alerts:
+    severity_levels:
+      - WARNING
+      - CRITICAL
+
+    notify_on:
+      - schema_drift
+      - high_client_id_nulls
+      - missing_event_payloads
+      - duplicate_transaction
+      - malformed_timestamp
+      - volume_anomaly
