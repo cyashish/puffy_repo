@@ -1,9 +1,104 @@
 {
     "dashboard": {
+      "id": null,
       "title": "Puffy Data Pipeline Health",
+      "timezone": "browser",
+      "schemaVersion": 16,
+      "version": 0,
+      "refresh": "5m",
       "panels": [
-        {"title": "Revenue Trend", "query": "SELECT..."},
-        {"title": "Attribution Mix", "query": "SELECT..."}
-      ]
+        {
+          "id": 1,
+          "type": "graph",
+          "title": "Daily Revenue Trend",
+          "targets": [
+            {
+              "rawSql": "SELECT DATE(conversion_time) as time, SUM(revenue) as revenue FROM analytics.fact_attribution WHERE conversion_time >= NOW() - INTERVAL '14 days' GROUP BY 1 ORDER BY 1",
+              "format": "time_series"
+            }
+          ],
+          "yaxes": [{"format": "currencyUSD"}],
+          "alert": {
+            "conditions": [
+              {
+                "evaluator": {"params": [-30], "type": "lt"},
+                "operator": {"type": "and"},
+                "query": {"params": ["A", "5m", "now"]},
+                "reducer": {"params": [], "type": "diff_abs"},
+                "type": "query"
+              }
+            ],
+            "frequency": "5m",
+            "message": "🔴 P1: Revenue dropped >30% vs yesterday"
+          }
+        },
+        {
+          "id": 2,
+          "type": "piechart",
+          "title": "Attribution Mix (Last 7 Days)",
+          "targets": [
+            {
+              "rawSql": "SELECT last_click_channel as channel, SUM(revenue) as revenue FROM analytics.fact_attribution WHERE conversion_time >= NOW() - INTERVAL '7 days' GROUP BY 1 ORDER BY 2 DESC",
+              "format": "table"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "type": "stat",
+          "title": "Paid Media Revenue (Today)",
+          "targets": [
+            {
+              "rawSql": "SELECT COALESCE(SUM(revenue), 0) as paid_revenue FROM analytics.fact_attribution WHERE DATE(conversion_time) = CURRENT_DATE AND last_click_channel IN ('Paid Search', 'Paid Social')",
+              "format": "table"
+            }
+          ],
+          "alert": {
+            "conditions": [
+              {
+                "evaluator": {"params": [1], "type": "lt"},
+                "operator": {"type": "and"},
+                "query": {"params": ["A"]},
+                "reducer": {"params": [], "type": "last"},
+                "type": "query"
+              }
+            ],
+            "frequency": "1h",
+            "message": "🔴 P0: Paid attribution = $0 (The Puffy Rule violated)"
+          }
+        },
+        {
+          "id": 4,
+          "type": "graph",
+          "title": "Event Volume (Last 7 Days)",
+          "targets": [
+            {
+              "rawSql": "SELECT DATE(event_ts) as time, COUNT(*) as events FROM staging.stg_events_normalized WHERE event_ts >= NOW() - INTERVAL '7 days' GROUP BY 1 ORDER BY 1",
+              "format": "time_series"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "type": "table",
+          "title": "Data Quality Alerts (Last 24h)",
+          "targets": [
+            {
+              "rawSql": "SELECT timestamp, severity, code, message FROM monitor_artifacts.monitor_alerts WHERE timestamp >= NOW() - INTERVAL '24 hours' ORDER BY timestamp DESC LIMIT 50",
+              "format": "table"
+            }
+          ]
+        }
+      ],
+      "templating": {
+        "list": [
+          {
+            "name": "date_range",
+            "type": "interval",
+            "query": "7d,14d,30d",
+            "current": {"text": "7d", "value": "7d"}
+          }
+        ]
+      }
     }
   }
