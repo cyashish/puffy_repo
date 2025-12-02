@@ -1,0 +1,9 @@
+{
+    "dashboard": {
+      "title": "Puffy Data Pipeline Health",
+      "panels": [
+        {"title": "Revenue Trend", "query": "SELECT..."},
+        {"title": "Attribution Mix", "query": "SELECT..."}
+      ]
+    }
+  }
