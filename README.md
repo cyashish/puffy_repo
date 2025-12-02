@@ -1,6 +1,4 @@
 # Puffy – Head of Data Infrastructure & Analytics  
-**Skills Test Submission** | Senior Director level
-
 ---
 
 ## Business Conclusion (TL;DR)
