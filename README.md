@@ -39,7 +39,7 @@ puffy_repo/
 │   └── architecture_diagram.png           # The beautiful PNG we made
 │
 ├── part3-business-analysis/
-│   ├── executive_summary.md              # 1.8-page executive summary (the one I just gave you)
+│   ├── executive_summary.pdf              # 1.8-page executive summary (the one I just gave you)
 │   ├── funnel_sankey.png
 │   ├── revenue_trend.png
 │   ├── attribution_loss_pie.png            # 77% unattributed slice
